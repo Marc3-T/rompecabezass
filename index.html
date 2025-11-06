@@ -6,56 +6,67 @@
     <title>Rompecabezas 4x5 - Rosa Pastel</title>
     <style>
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
+            box-sizing: border-box;
         }
-        
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #FFF0F5; /* Lavender blush */
-            color: #8B4789; /* Violeta oscuro */
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #FFF0F5; /* Rosa lavanda claro */
+            color: #8B5F8D; /* Rosa oscuro */
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             min-height: 100vh;
             padding: 20px;
-            overflow: hidden;
         }
-        
+
         header {
             text-align: center;
             margin-bottom: 20px;
             width: 100%;
         }
-        
+
         h1 {
             font-size: 24px;
             margin-bottom: 10px;
-            color: #D87093; /* Rosa fuerte */
+            color: #D291BC; /* Rosa medio */
         }
-        
-        .game-container {
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
             width: 100%;
             max-width: 400px;
-            margin: 0 auto;
+            margin-bottom: 15px;
+            background-color: #FFE4E6; /* Rosa muy claro */
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        
+
+        .game-info div {
+            text-align: center;
+        }
+
+        .game-info span {
+            font-weight: bold;
+            color: #C71585; /* Rosa vibrante */
+        }
+
         .puzzle-container {
             width: 100%;
-            aspect-ratio: 4/5;
+            max-width: 400px;
+            height: 500px;
             background-color: #FFE4E6; /* Rosa muy claro */
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(216, 112, 147, 0.2);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
             overflow: hidden;
             position: relative;
-            margin-bottom: 20px;
         }
-        
+
         .puzzle-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -64,295 +75,319 @@
             height: 100%;
             gap: 2px;
             padding: 2px;
-            background-image: url('8mm.JPG');
-            background-size: 100% 100%;
-            background-repeat: no-repeat;
         }
-        
+
         .puzzle-piece {
-            border-radius: 8px;
+            background-color: #FFB6C1; /* Rosa pastel */
+            border-radius: 5px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 18px;
             font-weight: bold;
-            color: #8B4789;
+            color: #8B5F8D; /* Rosa oscuro */
             cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 5px rgba(139, 71, 137, 0.1);
-            position: relative;
-            overflow: hidden;
-            background-color: rgba(255, 182, 193, 0.7); /* Fondo semitransparente */
-            border: 2px solid rgba(255, 255, 255, 0.7);
+            transition: transform 0.2s, background-color 0.2s;
+            user-select: none;
         }
-        
-        .puzzle-piece::before {
-            content: attr(data-number);
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            background-color: rgba(255, 255, 255, 0.8);
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            z-index: 2;
-        }
-        
+
         .puzzle-piece.empty {
             background-color: transparent;
-            box-shadow: none;
             cursor: default;
-            border: 2px dashed rgba(216, 112, 147, 0.5);
         }
-        
-        .puzzle-piece.empty::before {
-            display: none;
+
+        .puzzle-piece.movable:hover {
+            background-color: #FF91A4; /* Rosa más intenso */
+            transform: scale(0.98);
         }
-        
-        .puzzle-piece:not(.empty):active {
-            transform: scale(0.95);
-        }
-        
+
         .controls {
             display: flex;
-            justify-content: space-between;
-            width: 100%;
-            margin-top: 20px;
+            gap: 10px;
+            margin-bottom: 20px;
         }
-        
+
         button {
-            background-color: #FFB6C1;
-            color: #8B4789;
+            background-color: #D291BC; /* Rosa medio */
+            color: white;
             border: none;
-            border-radius: 8px;
-            padding: 12px 20px;
+            padding: 10px 15px;
+            border-radius: 20px;
             font-size: 16px;
-            font-weight: bold;
             cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 5px rgba(139, 71, 137, 0.2);
+            transition: background-color 0.2s;
         }
-        
-        button:active {
-            transform: scale(0.95);
-            background-color: #FF91A4;
+
+        button:hover {
+            background-color: #C71585; /* Rosa vibrante */
         }
-        
-        .message {
-            margin-top: 15px;
-            text-align: center;
-            font-size: 16px;
-            height: 20px;
-            color: #D87093;
-        }
-        
-        .moves-counter {
-            text-align: center;
-            font-size: 16px;
+
+        .instructions {
+            background-color: #FFE4E6; /* Rosa muy claro */
+            padding: 15px;
+            border-radius: 10px;
+            max-width: 400px;
             margin-top: 10px;
-            color: #8B4789;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        
-        /* Efectos de gradiente para las piezas */
-        .puzzle-piece:nth-child(4n+1) {
-            background-color: rgba(255, 182, 193, 0.7);
+
+        .instructions h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #D291BC; /* Rosa medio */
         }
-        
-        .puzzle-piece:nth-child(4n+2) {
-            background-color: rgba(255, 192, 203, 0.7);
+
+        .instructions p {
+            margin-bottom: 8px;
+            font-size: 14px;
         }
-        
-        .puzzle-piece:nth-child(4n+3) {
-            background-color: rgba(255, 209, 220, 0.7);
+
+        .win-message {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 228, 230, 0.9); /* Rosa muy claro con transparencia */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
         }
-        
-        .puzzle-piece:nth-child(4n+4) {
-            background-color: rgba(255, 228, 230, 0.7);
+
+        .win-message.show {
+            opacity: 1;
+            pointer-events: all;
         }
-        
-        /* Ajustes para Safari en iPhone */
-        @supports (-webkit-touch-callout: none) {
-            .puzzle-piece {
-                -webkit-tap-highlight-color: transparent;
-            }
+
+        .win-message h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #C71585; /* Rosa vibrante */
         }
     </style>
 </head>
 <body>
     <header>
         <h1>Rompecabezas 4x5</h1>
-        <p>Desliza las piezas para ordenar la imagen</p>
     </header>
     
-    <div class="game-container">
-        <div class="puzzle-container">
-            <div class="puzzle-grid" id="puzzleGrid"></div>
+    <div class="game-info">
+        <div>Movimientos: <span id="move-count">0</span></div>
+        <div>Tiempo: <span id="timer">00:00</span></div>
+    </div>
+    
+    <div class="puzzle-container">
+        <div class="puzzle-grid" id="puzzle-grid">
+            <!-- Las piezas se generarán con JavaScript -->
         </div>
-        
-        <div class="moves-counter" id="movesCounter">Movimientos: 0</div>
-        <div class="message" id="message"></div>
-        
-        <div class="controls">
-            <button id="shuffleBtn">Mezclar</button>
-            <button id="resetBtn">Reiniciar</button>
+        <div class="win-message" id="win-message">
+            <h2>¡Felicidades!</h2>
+            <p>Has completado el rompecabezas</p>
+            <button id="play-again">Jugar otra vez</button>
         </div>
+    </div>
+    
+    <div class="controls">
+        <button id="shuffle-btn">Mezclar</button>
+        <button id="reset-btn">Reiniciar</button>
+    </div>
+    
+    <div class="instructions">
+        <h2>Instrucciones</h2>
+        <p>• Toca una pieza adyacente al espacio vacío para moverla</p>
+        <p>• Ordena las piezas del 1 al 19 para completar el rompecabezas</p>
+        <p>• Intenta resolverlo en el menor tiempo y con la menor cantidad de movimientos</p>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const puzzleGrid = document.getElementById('puzzleGrid');
-            const shuffleBtn = document.getElementById('shuffleBtn');
-            const resetBtn = document.getElementById('resetBtn');
-            const movesCounter = document.getElementById('movesCounter');
-            const message = document.getElementById('message');
+            const puzzleGrid = document.getElementById('puzzle-grid');
+            const shuffleBtn = document.getElementById('shuffle-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const moveCountElement = document.getElementById('move-count');
+            const timerElement = document.getElementById('timer');
+            const winMessage = document.getElementById('win-message');
+            const playAgainBtn = document.getElementById('play-again');
             
-            const rows = 5;
-            const cols = 4;
-            const totalPieces = rows * cols;
+            const ROWS = 5;
+            const COLS = 4;
+            const TOTAL_PIECES = ROWS * COLS - 1; // 19 piezas + 1 espacio vacío
+            
             let pieces = [];
-            let emptyIndex = totalPieces - 1;
-            let moves = 0;
-            let gameStarted = false;
+            let emptyIndex = TOTAL_PIECES; // El último índice es el espacio vacío
+            let moveCount = 0;
+            let timer = 0;
+            let timerInterval;
+            let isGameActive = false;
             
             // Inicializar el rompecabezas
             function initPuzzle() {
                 puzzleGrid.innerHTML = '';
                 pieces = [];
                 
-                for (let i = 0; i < totalPieces; i++) {
-                    const piece = document.createElement('div');
-                    piece.className = 'puzzle-piece';
+                // Crear piezas ordenadas
+                for (let i = 0; i < TOTAL_PIECES; i++) {
+                    pieces.push(i + 1);
+                }
+                pieces.push(null); // El espacio vacío
+                
+                renderPuzzle();
+                updateMoveCount();
+                resetTimer();
+            }
+            
+            // Renderizar el rompecabezas
+            function renderPuzzle() {
+                puzzleGrid.innerHTML = '';
+                
+                pieces.forEach((piece, index) => {
+                    const pieceElement = document.createElement('div');
+                    pieceElement.className = 'puzzle-piece';
                     
-                    if (i === emptyIndex) {
-                        piece.classList.add('empty');
-                        piece.textContent = '';
+                    if (piece === null) {
+                        pieceElement.classList.add('empty');
                     } else {
-                        piece.textContent = i + 1;
-                        piece.dataset.index = i;
-                        piece.dataset.number = i + 1;
+                        pieceElement.textContent = piece;
+                        pieceElement.classList.add('movable');
+                        
+                        // Verificar si la pieza es adyacente al espacio vacío
+                        if (isAdjacent(index, emptyIndex)) {
+                            pieceElement.addEventListener('click', () => movePiece(index));
+                        }
                     }
                     
-                    piece.addEventListener('click', () => movePiece(i));
-                    puzzleGrid.appendChild(piece);
-                    pieces.push(piece);
-                }
-                
-                moves = 0;
-                updateMovesCounter();
-                message.textContent = '';
-                gameStarted = false;
+                    puzzleGrid.appendChild(pieceElement);
+                });
             }
             
-            // Mezclar las piezas
-            function shufflePuzzle() {
-                // Realizar movimientos aleatorios para mezclar
-                const shuffleMoves = 200;
-                let lastMove = -1;
+            // Verificar si dos índices son adyacentes
+            function isAdjacent(index1, index2) {
+                const row1 = Math.floor(index1 / COLS);
+                const col1 = index1 % COLS;
+                const row2 = Math.floor(index2 / COLS);
+                const col2 = index2 % COLS;
                 
-                for (let i = 0; i < shuffleMoves; i++) {
-                    const adjacent = getAdjacentIndices(emptyIndex);
-                    // Evitar deshacer el último movimiento
-                    const validMoves = adjacent.filter(index => index !== lastMove);
-                    const randomIndex = validMoves[Math.floor(Math.random() * validMoves.length)];
-                    
-                    swapPieces(randomIndex, emptyIndex);
-                    lastMove = emptyIndex;
-                    emptyIndex = randomIndex;
-                }
-                
-                moves = 0;
-                updateMovesCounter();
-                message.textContent = '';
-                gameStarted = true;
-            }
-            
-            // Obtener índices adyacentes a una pieza
-            function getAdjacentIndices(index) {
-                const adjacent = [];
-                const row = Math.floor(index / cols);
-                const col = index % cols;
-                
-                // Arriba
-                if (row > 0) adjacent.push(index - cols);
-                // Abajo
-                if (row < rows - 1) adjacent.push(index + cols);
-                // Izquierda
-                if (col > 0) adjacent.push(index - 1);
-                // Derecha
-                if (col < cols - 1) adjacent.push(index + 1);
-                
-                return adjacent;
+                return (Math.abs(row1 - row2) === 1 && col1 === col2) || 
+                       (Math.abs(col1 - col2) === 1 && row1 === row2);
             }
             
             // Mover una pieza
             function movePiece(index) {
-                if (!gameStarted && index !== emptyIndex) {
-                    gameStarted = true;
+                if (!isGameActive) {
+                    startTimer();
+                    isGameActive = true;
                 }
                 
-                const adjacent = getAdjacentIndices(emptyIndex);
+                // Intercambiar la pieza con el espacio vacío
+                [pieces[index], pieces[emptyIndex]] = [pieces[emptyIndex], pieces[index]];
+                emptyIndex = index;
                 
-                if (adjacent.includes(index)) {
-                    swapPieces(index, emptyIndex);
-                    emptyIndex = index;
-                    moves++;
-                    updateMovesCounter();
-                    
-                    if (checkWin()) {
-                        message.textContent = '¡Felicidades! Has completado el rompecabezas.';
-                    }
-                }
-            }
-            
-            // Intercambiar dos piezas
-            function swapPieces(index1, index2) {
-                const tempText = pieces[index1].textContent;
-                const tempData = pieces[index1].dataset.index;
-                const tempNumber = pieces[index1].dataset.number;
+                moveCount++;
+                updateMoveCount();
+                renderPuzzle();
                 
-                pieces[index1].textContent = pieces[index2].textContent;
-                pieces[index1].dataset.index = pieces[index2].dataset.index;
-                pieces[index1].dataset.number = pieces[index2].dataset.number;
-                
-                pieces[index2].textContent = tempText;
-                pieces[index2].dataset.index = tempData;
-                pieces[index2].dataset.number = tempNumber;
-                
-                if (pieces[index1].textContent === '') {
-                    pieces[index1].classList.add('empty');
-                } else {
-                    pieces[index1].classList.remove('empty');
-                }
-                
-                if (pieces[index2].textContent === '') {
-                    pieces[index2].classList.add('empty');
-                } else {
-                    pieces[index2].classList.remove('empty');
+                // Verificar si el rompecabezas está resuelto
+                if (isSolved()) {
+                    endGame();
                 }
             }
             
-            // Comprobar si el jugador ha ganado
-            function checkWin() {
-                for (let i = 0; i < totalPieces - 1; i++) {
-                    if (pieces[i].textContent !== (i + 1).toString()) {
+            // Verificar si el rompecabezas está resuelto
+            function isSolved() {
+                for (let i = 0; i < TOTAL_PIECES; i++) {
+                    if (pieces[i] !== i + 1) {
                         return false;
                     }
                 }
-                return pieces[emptyIndex].textContent === '';
+                return pieces[TOTAL_PIECES] === null;
+            }
+            
+            // Mezclar las piezas
+            function shufflePieces() {
+                resetTimer();
+                moveCount = 0;
+                updateMoveCount();
+                isGameActive = false;
+                
+                // Algoritmo de mezcla: realizar movimientos válidos aleatorios
+                const shuffleMoves = 200;
+                let lastMovedIndex = -1;
+                
+                for (let i = 0; i < shuffleMoves; i++) {
+                    const adjacentIndices = [];
+                    
+                    // Encontrar todas las piezas adyacentes al espacio vacío
+                    for (let j = 0; j < pieces.length; j++) {
+                        if (pieces[j] !== null && isAdjacent(j, emptyIndex) && j !== lastMovedIndex) {
+                            adjacentIndices.push(j);
+                        }
+                    }
+                    
+                    // Elegir una pieza aleatoria para mover
+                    if (adjacentIndices.length > 0) {
+                        const randomIndex = Math.floor(Math.random() * adjacentIndices.length);
+                        const pieceToMove = adjacentIndices[randomIndex];
+                        
+                        // Mover la pieza
+                        [pieces[pieceToMove], pieces[emptyIndex]] = [pieces[emptyIndex], pieces[pieceToMove]];
+                        lastMovedIndex = emptyIndex;
+                        emptyIndex = pieceToMove;
+                    }
+                }
+                
+                renderPuzzle();
+                winMessage.classList.remove('show');
             }
             
             // Actualizar el contador de movimientos
-            function updateMovesCounter() {
-                movesCounter.textContent = `Movimientos: ${moves}`;
+            function updateMoveCount() {
+                moveCountElement.textContent = moveCount;
+            }
+            
+            // Iniciar el temporizador
+            function startTimer() {
+                clearInterval(timerInterval);
+                timer = 0;
+                updateTimer();
+                timerInterval = setInterval(() => {
+                    timer++;
+                    updateTimer();
+                }, 1000);
+            }
+            
+            // Actualizar el temporizador
+            function updateTimer() {
+                const minutes = Math.floor(timer / 60).toString().padStart(2, '0');
+                const seconds = (timer % 60).toString().padStart(2, '0');
+                timerElement.textContent = `${minutes}:${seconds}`;
+            }
+            
+            // Reiniciar el temporizador
+            function resetTimer() {
+                clearInterval(timerInterval);
+                timer = 0;
+                updateTimer();
+            }
+            
+            // Finalizar el juego
+            function endGame() {
+                clearInterval(timerInterval);
+                isGameActive = false;
+                winMessage.classList.add('show');
             }
             
             // Event listeners
-            shuffleBtn.addEventListener('click', shufflePuzzle);
+            shuffleBtn.addEventListener('click', shufflePieces);
             resetBtn.addEventListener('click', initPuzzle);
+            playAgainBtn.addEventListener('click', () => {
+                initPuzzle();
+                winMessage.classList.remove('show');
+            });
             
             // Inicializar el juego
             initPuzzle();
