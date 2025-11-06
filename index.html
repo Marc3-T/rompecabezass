@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rompecabezas 4x5 - Rosa Pastel</title>
+    <title>Rompecabezas 4x5 - 8mm</title>
     <style>
         * {
             margin: 0;
@@ -80,15 +80,18 @@
         .puzzle-piece {
             background-color: #FFB6C1; /* Rosa pastel */
             border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            font-weight: bold;
-            color: #8B5F8D; /* Rosa oscuro */
+            overflow: hidden;
             cursor: pointer;
             transition: transform 0.2s, background-color 0.2s;
             user-select: none;
+            position: relative;
+        }
+
+        .puzzle-piece img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
 
         .puzzle-piece.empty {
@@ -157,6 +160,7 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.5s;
+            z-index: 10;
         }
 
         .win-message.show {
@@ -169,11 +173,36 @@
             margin-bottom: 15px;
             color: #C71585; /* Rosa vibrante */
         }
+
+        .image-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 182, 193, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #D291BC;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
     <header>
-        <h1>Rompecabezas 4x5</h1>
+        <h1>Rompecabezas 4x5 - 8mm</h1>
     </header>
     
     <div class="game-info">
@@ -182,6 +211,10 @@
     </div>
     
     <div class="puzzle-container">
+        <div class="image-loading" id="loading">
+            <div class="spinner"></div>
+            <p>Cargando imagen...</p>
+        </div>
         <div class="puzzle-grid" id="puzzle-grid">
             <!-- Las piezas se generarán con JavaScript -->
         </div>
@@ -200,7 +233,7 @@
     <div class="instructions">
         <h2>Instrucciones</h2>
         <p>• Toca una pieza adyacente al espacio vacío para moverla</p>
-        <p>• Ordena las piezas del 1 al 19 para completar el rompecabezas</p>
+        <p>• Ordena las piezas para completar la imagen</p>
         <p>• Intenta resolverlo en el menor tiempo y con la menor cantidad de movimientos</p>
     </div>
 
@@ -213,10 +246,14 @@
             const timerElement = document.getElementById('timer');
             const winMessage = document.getElementById('win-message');
             const playAgainBtn = document.getElementById('play-again');
+            const loadingElement = document.getElementById('loading');
             
             const ROWS = 5;
             const COLS = 4;
             const TOTAL_PIECES = ROWS * COLS - 1; // 19 piezas + 1 espacio vacío
+            
+            // URL de la imagen en GitHub - reemplaza con tu URL real
+            const IMAGE_URL = 'https://raw.githubusercontent.com/tu-usuario/tu-repositorio/main/8mm.JPG';
             
             let pieces = [];
             let emptyIndex = TOTAL_PIECES; // El último índice es el espacio vacío
@@ -224,15 +261,34 @@
             let timer = 0;
             let timerInterval;
             let isGameActive = false;
+            let imageLoaded = false;
+            let originalImage;
+            
+            // Cargar la imagen
+            function loadImage() {
+                originalImage = new Image();
+                originalImage.crossOrigin = "Anonymous";
+                originalImage.onload = function() {
+                    imageLoaded = true;
+                    loadingElement.style.display = 'none';
+                    initPuzzle();
+                };
+                originalImage.onerror = function() {
+                    loadingElement.innerHTML = '<p>Error al cargar la imagen. Verifica la URL.</p>';
+                };
+                originalImage.src = IMAGE_URL;
+            }
             
             // Inicializar el rompecabezas
             function initPuzzle() {
+                if (!imageLoaded) return;
+                
                 puzzleGrid.innerHTML = '';
                 pieces = [];
                 
                 // Crear piezas ordenadas
                 for (let i = 0; i < TOTAL_PIECES; i++) {
-                    pieces.push(i + 1);
+                    pieces.push(i);
                 }
                 pieces.push(null); // El espacio vacío
                 
@@ -245,14 +301,30 @@
             function renderPuzzle() {
                 puzzleGrid.innerHTML = '';
                 
-                pieces.forEach((piece, index) => {
+                pieces.forEach((pieceIndex, index) => {
                     const pieceElement = document.createElement('div');
                     pieceElement.className = 'puzzle-piece';
                     
-                    if (piece === null) {
+                    if (pieceIndex === null) {
                         pieceElement.classList.add('empty');
                     } else {
-                        pieceElement.textContent = piece;
+                        // Crear el recorte de imagen para esta pieza
+                        const img = document.createElement('img');
+                        img.src = originalImage.src;
+                        
+                        // Calcular posición del recorte
+                        const row = Math.floor(pieceIndex / COLS);
+                        const col = pieceIndex % COLS;
+                        const x = (col / COLS) * 100;
+                        const y = (row / ROWS) * 100;
+                        const width = 100 / COLS;
+                        const height = 100 / ROWS;
+                        
+                        img.style.objectPosition = `-${x}% -${y}%`;
+                        img.style.width = `${COLS * 100}%`;
+                        img.style.height = `${ROWS * 100}%`;
+                        
+                        pieceElement.appendChild(img);
                         pieceElement.classList.add('movable');
                         
                         // Verificar si la pieza es adyacente al espacio vacío
@@ -300,7 +372,7 @@
             // Verificar si el rompecabezas está resuelto
             function isSolved() {
                 for (let i = 0; i < TOTAL_PIECES; i++) {
-                    if (pieces[i] !== i + 1) {
+                    if (pieces[i] !== i) {
                         return false;
                     }
                 }
@@ -389,8 +461,8 @@
                 winMessage.classList.remove('show');
             });
             
-            // Inicializar el juego
-            initPuzzle();
+            // Inicializar el juego cargando la imagen
+            loadImage();
         });
     </script>
 </body>
