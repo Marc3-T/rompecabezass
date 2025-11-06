@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rompecabezas 4x5 - Rosa Pastel</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #FFF0F5; /* Lavender blush */
+            color: #8B4789; /* Violeta oscuro */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow: hidden;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #D87093; /* Rosa fuerte */
+        }
+        
+        .game-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .puzzle-container {
+            width: 100%;
+            aspect-ratio: 4/5;
+            background-color: #FFE4E6; /* Rosa muy claro */
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(216, 112, 147, 0.2);
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .puzzle-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            width: 100%;
+            height: 100%;
+            gap: 2px;
+            padding: 2px;
+            background-image: url('11m.png');
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+        }
+        
+        .puzzle-piece {
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #8B4789;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(139, 71, 137, 0.1);
+            position: relative;
+            overflow: hidden;
+            background-color: rgba(255, 182, 193, 0.7); /* Fondo semitransparente */
+            border: 2px solid rgba(255, 255, 255, 0.7);
+        }
+        
+        .puzzle-piece::before {
+            content: attr(data-number);
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background-color: rgba(255, 255, 255, 0.8);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            z-index: 2;
+        }
+        
+        .puzzle-piece.empty {
+            background-color: transparent;
+            box-shadow: none;
+            cursor: default;
+            border: 2px dashed rgba(216, 112, 147, 0.5);
+        }
+        
+        .puzzle-piece.empty::before {
+            display: none;
+        }
+        
+        .puzzle-piece:not(.empty):active {
+            transform: scale(0.95);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        button {
+            background-color: #FFB6C1;
+            color: #8B4789;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(139, 71, 137, 0.2);
+        }
+        
+        button:active {
+            transform: scale(0.95);
+            background-color: #FF91A4;
+        }
+        
+        .message {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 16px;
+            height: 20px;
+            color: #D87093;
+        }
+        
+        .moves-counter {
+            text-align: center;
+            font-size: 16px;
+            margin-top: 10px;
+            color: #8B4789;
+        }
+        
+        /* Efectos de gradiente para las piezas */
+        .puzzle-piece:nth-child(4n+1) {
+            background-color: rgba(255, 182, 193, 0.7);
+        }
+        
+        .puzzle-piece:nth-child(4n+2) {
+            background-color: rgba(255, 192, 203, 0.7);
+        }
+        
+        .puzzle-piece:nth-child(4n+3) {
+            background-color: rgba(255, 209, 220, 0.7);
+        }
+        
+        .puzzle-piece:nth-child(4n+4) {
+            background-color: rgba(255, 228, 230, 0.7);
+        }
+        
+        /* Ajustes para Safari en iPhone */
+        @supports (-webkit-touch-callout: none) {
+            .puzzle-piece {
+                -webkit-tap-highlight-color: transparent;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Rompecabezas 4x5</h1>
+        <p>Desliza las piezas para ordenar la imagen</p>
+    </header>
+    
+    <div class="game-container">
+        <div class="puzzle-container">
+            <div class="puzzle-grid" id="puzzleGrid"></div>
+        </div>
+        
+        <div class="moves-counter" id="movesCounter">Movimientos: 0</div>
+        <div class="message" id="message"></div>
+        
+        <div class="controls">
+            <button id="shuffleBtn">Mezclar</button>
+            <button id="resetBtn">Reiniciar</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const puzzleGrid = document.getElementById('puzzleGrid');
+            const shuffleBtn = document.getElementById('shuffleBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const movesCounter = document.getElementById('movesCounter');
+            const message = document.getElementById('message');
+            
+            const rows = 5;
+            const cols = 4;
+            const totalPieces = rows * cols;
+            let pieces = [];
+            let emptyIndex = totalPieces - 1;
+            let moves = 0;
+            let gameStarted = false;
+            
+            // Inicializar el rompecabezas
+            function initPuzzle() {
+                puzzleGrid.innerHTML = '';
+                pieces = [];
+                
+                for (let i = 0; i < totalPieces; i++) {
+                    const piece = document.createElement('div');
+                    piece.className = 'puzzle-piece';
+                    
+                    if (i === emptyIndex) {
+                        piece.classList.add('empty');
+                        piece.textContent = '';
+                    } else {
+                        piece.textContent = i + 1;
+                        piece.dataset.index = i;
+                        piece.dataset.number = i + 1;
+                    }
+                    
+                    piece.addEventListener('click', () => movePiece(i));
+                    puzzleGrid.appendChild(piece);
+                    pieces.push(piece);
+                }
+                
+                moves = 0;
+                updateMovesCounter();
+                message.textContent = '';
+                gameStarted = false;
+            }
+            
+            // Mezclar las piezas
+            function shufflePuzzle() {
+                // Realizar movimientos aleatorios para mezclar
+                const shuffleMoves = 200;
+                let lastMove = -1;
+                
+                for (let i = 0; i < shuffleMoves; i++) {
+                    const adjacent = getAdjacentIndices(emptyIndex);
+                    // Evitar deshacer el último movimiento
+                    const validMoves = adjacent.filter(index => index !== lastMove);
+                    const randomIndex = validMoves[Math.floor(Math.random() * validMoves.length)];
+                    
+                    swapPieces(randomIndex, emptyIndex);
+                    lastMove = emptyIndex;
+                    emptyIndex = randomIndex;
+                }
+                
+                moves = 0;
+                updateMovesCounter();
+                message.textContent = '';
+                gameStarted = true;
+            }
+            
+            // Obtener índices adyacentes a una pieza
+            function getAdjacentIndices(index) {
+                const adjacent = [];
+                const row = Math.floor(index / cols);
+                const col = index % cols;
+                
+                // Arriba
+                if (row > 0) adjacent.push(index - cols);
+                // Abajo
+                if (row < rows - 1) adjacent.push(index + cols);
+                // Izquierda
+                if (col > 0) adjacent.push(index - 1);
+                // Derecha
+                if (col < cols - 1) adjacent.push(index + 1);
+                
+                return adjacent;
+            }
+            
+            // Mover una pieza
+            function movePiece(index) {
+                if (!gameStarted && index !== emptyIndex) {
+                    gameStarted = true;
+                }
+                
+                const adjacent = getAdjacentIndices(emptyIndex);
+                
+                if (adjacent.includes(index)) {
+                    swapPieces(index, emptyIndex);
+                    emptyIndex = index;
+                    moves++;
+                    updateMovesCounter();
+                    
+                    if (checkWin()) {
+                        message.textContent = '¡Felicidades! Has completado el rompecabezas.';
+                    }
+                }
+            }
+            
+            // Intercambiar dos piezas
+            function swapPieces(index1, index2) {
+                const tempText = pieces[index1].textContent;
+                const tempData = pieces[index1].dataset.index;
+                const tempNumber = pieces[index1].dataset.number;
+                
+                pieces[index1].textContent = pieces[index2].textContent;
+                pieces[index1].dataset.index = pieces[index2].dataset.index;
+                pieces[index1].dataset.number = pieces[index2].dataset.number;
+                
+                pieces[index2].textContent = tempText;
+                pieces[index2].dataset.index = tempData;
+                pieces[index2].dataset.number = tempNumber;
+                
+                if (pieces[index1].textContent === '') {
+                    pieces[index1].classList.add('empty');
+                } else {
+                    pieces[index1].classList.remove('empty');
+                }
+                
+                if (pieces[index2].textContent === '') {
+                    pieces[index2].classList.add('empty');
+                } else {
+                    pieces[index2].classList.remove('empty');
+                }
+            }
+            
+            // Comprobar si el jugador ha ganado
+            function checkWin() {
+                for (let i = 0; i < totalPieces - 1; i++) {
+                    if (pieces[i].textContent !== (i + 1).toString()) {
+                        return false;
+                    }
+                }
+                return pieces[emptyIndex].textContent === '';
+            }
+            
+            // Actualizar el contador de movimientos
+            function updateMovesCounter() {
+                movesCounter.textContent = `Movimientos: ${moves}`;
+            }
+            
+            // Event listeners
+            shuffleBtn.addEventListener('click', shufflePuzzle);
+            resetBtn.addEventListener('click', initPuzzle);
+            
+            // Inicializar el juego
+            initPuzzle();
+        });
+    </script>
+</body>
+</html>
